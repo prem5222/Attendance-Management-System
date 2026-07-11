@@ -6,6 +6,73 @@ import { compareFaceDescriptors } from '@/lib/services/face.service';
 
 type FaceApiModule = typeof import('@vladmandic/face-api');
 
+export type HeadPose = 'FRONT' | 'LEFT' | 'RIGHT' | 'UP' | 'DOWN';
+
+export function getHeadPose(landmarks: any): HeadPose {
+  const nose = landmarks.getNose()[3]; // tip of nose
+  const jawOutline = landmarks.getJawOutline();
+  const leftJaw = jawOutline[0]; 
+  const rightJaw = jawOutline[16]; 
+  
+  const leftDist = nose.x - leftJaw.x;
+  const rightDist = rightJaw.x - nose.x;
+  const yawRatio = leftDist / (rightDist || 1);
+  
+  const topNose = landmarks.getNose()[0]; // bridge
+  const chin = jawOutline[8]; // bottom chin
+  
+  const topDist = nose.y - topNose.y;
+  const bottomDist = chin.y - nose.y;
+  const pitchRatio = topDist / (bottomDist || 1);
+
+  if (yawRatio < 0.6) return 'RIGHT';
+  if (yawRatio > 1.6) return 'LEFT';
+  if (pitchRatio < 0.5) return 'DOWN';
+  if (pitchRatio > 1.2) return 'UP';
+  return 'FRONT';
+}
+
+export function evaluateFaceQuality(
+  detection: any, 
+  videoElement: HTMLVideoElement,
+  allFaces: any[]
+): { valid: boolean; reason?: string } {
+  if (allFaces.length > 1) {
+    return { valid: false, reason: 'Multiple faces detected. Please ensure only you are in frame.' };
+  }
+  if (!detection) {
+    return { valid: false, reason: 'No face detected.' };
+  }
+
+  const box = detection.detection.box;
+  const videoWidth = videoElement.videoWidth;
+  const videoHeight = videoElement.videoHeight;
+
+  if (box.width < videoWidth * 0.15) {
+    return { valid: false, reason: 'Face is too far. Please move closer.' };
+  }
+
+  const centerX = box.x + box.width / 2;
+  const centerY = box.y + box.height / 2;
+  
+  const isCenteredX = centerX > videoWidth * 0.25 && centerX < videoWidth * 0.75;
+  const isCenteredY = centerY > videoHeight * 0.25 && centerY < videoHeight * 0.75;
+  
+  if (!isCenteredX || !isCenteredY) {
+    return { valid: false, reason: 'Face is not centered. Please center your face.' };
+  }
+  
+  if (detection.landmarks.positions.length !== 68) {
+     return { valid: false, reason: 'Face is partially obscured. Please remove masks/sunglasses.' };
+  }
+  
+  if (detection.detection.score < 0.7) {
+    return { valid: false, reason: 'Face image quality is too low or blurry.' };
+  }
+
+  return { valid: true };
+}
+
 export function useFaceRecognition() {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
@@ -69,6 +136,26 @@ export function useFaceRecognition() {
     }
   }, [modelsLoaded]);
 
+  const detectFaceDetailed = useCallback(async (
+    videoElement: HTMLVideoElement
+  ) => {
+    const faceapi = faceapiRef.current;
+    if (!faceapi || !modelsLoaded) return { detection: null, allFaces: [] };
+
+    try {
+      const allFaces = await faceapi.detectAllFaces(videoElement).withFaceLandmarks();
+      const detection = await faceapi
+        .detectSingleFace(videoElement)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      return { detection, allFaces };
+    } catch (err) {
+      console.error('Face detection error:', err);
+      return { detection: null, allFaces: [] };
+    }
+  }, [modelsLoaded]);
+
   const registerFace = useCallback(async (
     videoElement: HTMLVideoElement,
     captureCount: number = 5
@@ -119,27 +206,27 @@ export function useFaceRecognition() {
     setError(null);
 
     try {
-      const descriptor = await detectFace(videoElement);
-      if (!descriptor) {
-        setError('No face detected. Please face the camera.');
-        return null;
+      const { detection, allFaces } = await detectFaceDetailed(videoElement);
+      
+      const quality = evaluateFaceQuality(detection, videoElement, allFaces);
+      if (!quality.valid || !detection) {
+        throw new Error(quality.reason || 'Invalid face capture.');
       }
 
       const result = compareFaceDescriptors(
-        descriptor,
+        detection.descriptor,
         storedDescriptors,
         FACE_MATCH_THRESHOLD
       );
 
       return { matched: result.matched, distance: result.distance };
-    } catch (err) {
+    } catch (err: any) {
       console.error('Face verification error:', err);
-      setError('Face verification failed. Please try again.');
-      return null;
+      throw err;
     } finally {
       setIsDetecting(false);
     }
-  }, [detectFace]);
+  }, [detectFaceDetailed]);
 
   return {
     modelsLoaded,
@@ -148,6 +235,7 @@ export function useFaceRecognition() {
     loadingProgress,
     loadModels,
     detectFace,
+    detectFaceDetailed,
     registerFace,
     verifyFace,
   };

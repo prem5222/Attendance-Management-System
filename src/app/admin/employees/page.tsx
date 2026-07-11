@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAdmin } from '@/hooks/useAdmin';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -8,18 +8,43 @@ import Badge from '@/components/ui/Badge';
 import Input from '@/components/ui/Input';
 import Avatar from '@/components/ui/Avatar';
 import Skeleton from '@/components/ui/Skeleton';
+import Modal from '@/components/ui/Modal';
 import { Search, Plus, UserX, UserCheck, MoreVertical, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminEmployeesPage() {
-  const { employees, loading, toggleEmployeeStatus } = useAdmin();
+  const { employees, loading, fetchEmployees, toggleEmployeeStatus, addEmployee } = useAdmin();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    department: '',
+    designation: '',
+  });
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   const filteredEmployees = employees.filter(emp => 
     emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.employeeID.toLowerCase().includes(searchTerm.toLowerCase())
+    (emp.employeeID && emp.employeeID.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const success = await addEmployee(formData);
+    if (success) {
+      setIsAddModalOpen(false);
+      setFormData({ name: '', email: '', password: '', department: '', designation: '' });
+    }
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -32,7 +57,7 @@ export default function AdminEmployeesPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button icon={<Plus className="w-4 h-4" />}>
+          <Button icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddModalOpen(true)}>
             Add Employee
           </Button>
         </div>
@@ -114,6 +139,54 @@ export default function AdminEmployeesPage() {
           </table>
         </div>
       </Card>
+
+      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add New Employee">
+        <form onSubmit={handleAddSubmit} className="space-y-4">
+          <Input 
+            label="Full Name" 
+            required 
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+          />
+          <Input 
+            label="Email Address" 
+            type="email" 
+            required 
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+          />
+          <Input 
+            label="Temporary Password" 
+            type="password" 
+            required 
+            minLength={6}
+            value={formData.password}
+            onChange={(e) => setFormData({...formData, password: e.target.value})}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              label="Department" 
+              required 
+              value={formData.department}
+              onChange={(e) => setFormData({...formData, department: e.target.value})}
+            />
+            <Input 
+              label="Designation" 
+              required 
+              value={formData.designation}
+              onChange={(e) => setFormData({...formData, designation: e.target.value})}
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+            <Button variant="ghost" type="button" onClick={() => setIsAddModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              Add Employee
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

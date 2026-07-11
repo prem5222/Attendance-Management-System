@@ -56,6 +56,9 @@ export interface DashboardStats {
   totalHours: number;
   averageHours: number;
   currentMonth: string;
+  weeklyHoursChart: { date: string; hours: number }[];
+  recentActivity: AttendanceRecord[];
+  performanceScore: number;
 }
 
 export interface AdminStats {
@@ -67,6 +70,7 @@ export interface AdminStats {
   monthlyChartData: { date: string; present: number; absent: number; late: number }[];
   weeklyData: { date: string; present: number; absent: number }[];
   recentActivity: { id: string; employeeName: string; employeeID: string; action: string; time: string | Date | null; status: string }[];
+  departmentChartData: { name: string; value: number }[];
 }
 
 export interface NavItem {

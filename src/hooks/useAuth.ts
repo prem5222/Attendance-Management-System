@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { signUp, signIn, logOut, resetPassword as resetPw } from '@/lib/services/auth.service';
+import { signUp, signIn, logOut, resetPassword as resetPw, logAuthEvent } from '@/lib/services/auth.service';
 import { createUserDoc } from '@/lib/services/user.service';
 import { generateEmployeeID } from '@/lib/utils/helpers';
 import toast from 'react-hot-toast';
@@ -16,8 +16,11 @@ export function useAuth() {
     try {
       const credential = await signIn(email, password, rememberMe);
       // Ensure user doc exists
-      const { getUserDoc } = await import('@/lib/services/user.service');
+      const { getUserDoc, updateUserDoc } = await import('@/lib/services/user.service');
       const existingDoc = await getUserDoc(credential.user.uid);
+      
+      const isAdmin = credential.user.email === 'meruvaprem20@gmail.com';
+      
       if (!existingDoc) {
         await createUserDoc(credential.user.uid, {
           name: credential.user.displayName || 'User',
@@ -27,15 +30,24 @@ export function useAuth() {
           designation: '',
           employeeID: generateEmployeeID(),
           photoURL: credential.user.photoURL || '',
-          role: 'employee',
+          role: isAdmin ? 'admin' : 'employee',
           faceRegistered: false,
           status: 'active',
         });
+      } else if (isAdmin && existingDoc.role !== 'admin') {
+        // Upgrade existing user to admin
+        await updateUserDoc(credential.user.uid, { role: 'admin' });
       }
+      
       await refreshUser();
+      await logAuthEvent(email, 'login', 'success');
       toast.success('Welcome back!');
-      return credential;
+      return {
+        credential,
+        role: isAdmin ? 'admin' : (existingDoc?.role || 'employee')
+      };
     } catch (err: unknown) {
+      await logAuthEvent(email, 'login', 'failed', { error: err instanceof Error ? err.message : String(err) });
       const message = err instanceof Error ? err.message : 'Login failed';
       const friendlyMessage = getFriendlyError(message);
       toast.error(friendlyMessage);
@@ -49,6 +61,7 @@ export function useAuth() {
     setAuthLoading(true);
     try {
       const credential = await signUp(email, password, name);
+      const isAdmin = email === 'meruvaprem20@gmail.com';
       await createUserDoc(credential.user.uid, {
         name,
         email,
@@ -57,13 +70,15 @@ export function useAuth() {
         designation: '',
         employeeID: generateEmployeeID(),
         photoURL: '',
-        role: 'employee',
+        role: isAdmin ? 'admin' : 'employee',
         faceRegistered: false,
         status: 'active',
       });
-      toast.success('Account created! Please verify your email.');
+      await logAuthEvent(email, 'signup', 'success');
+      toast.success('Account created successfully!');
       return credential;
     } catch (err: unknown) {
+      await logAuthEvent(email, 'signup', 'failed', { error: err instanceof Error ? err.message : String(err) });
       const message = err instanceof Error ? err.message : 'Signup failed';
       const friendlyMessage = getFriendlyError(message);
       toast.error(friendlyMessage);

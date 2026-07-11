@@ -325,6 +325,35 @@ export async function getAttendanceStats(
   const averageHours =
     presentDays > 0 ? Math.round((totalHours / presentDays) * 100) / 100 : 0;
 
+  // Calculate recent activity (latest 5 records)
+  const recentActivity = [...records]
+    .sort((a, b) => b.checkIn.getTime() - a.checkIn.getTime())
+    .slice(0, 5);
+
+  // Calculate weekly hours chart
+  const weeklyHoursChart: { date: string; hours: number }[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+    
+    const dateStr = getDateString(d);
+    const dayRecord = records.find(r => r.date === dateStr);
+    weeklyHoursChart.push({
+      date: dateStr,
+      hours: dayRecord?.workingHours || 0
+    });
+  }
+
+  // Calculate performance score (0-100)
+  // Base score is attendance percentage
+  let performanceScore = attendancePercentage;
+  // Deduct 2 points for every late day
+  performanceScore -= (lateDays * 2);
+  // Cap between 0 and 100
+  performanceScore = Math.max(0, Math.min(100, performanceScore));
+
   return {
     totalWorkingDays,
     presentDays,
@@ -335,6 +364,9 @@ export async function getAttendanceStats(
     totalHours: Math.round(totalHours * 100) / 100,
     averageHours,
     currentMonth: `${year}-${String(month).padStart(2, '0')}`,
+    weeklyHoursChart,
+    recentActivity,
+    performanceScore
   } as DashboardStats;
 }
 
@@ -440,6 +472,20 @@ export async function getAdminStats(): Promise<AdminStats> {
       status: record.status,
     }));
 
+  // Calculate department chart data for today's present employees
+  const departmentCounts: Record<string, number> = {};
+  for (const record of todayRecords) {
+    const emp = activeEmployees.find(e => e.uid === record.uid);
+    if (emp && emp.department) {
+      departmentCounts[emp.department] = (departmentCounts[emp.department] || 0) + 1;
+    }
+  }
+  
+  const departmentChartData = Object.entries(departmentCounts).map(([name, value]) => ({
+    name,
+    value
+  }));
+
   return {
     totalEmployees,
     presentToday,
@@ -452,6 +498,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     monthlyChartData,
     weeklyData,
     recentActivity,
+    departmentChartData,
   } as AdminStats;
 }
 

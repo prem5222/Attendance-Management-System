@@ -97,6 +97,38 @@ export function useAdmin() {
     []
   );
 
+  const addEmployee = async (data: any) => {
+    try {
+      const { adminCreateUser } = await import('@/lib/services/auth.service');
+      const { createUserDoc } = await import('@/lib/services/user.service');
+      const { generateEmployeeID } = await import('@/lib/utils/helpers');
+
+      const credential = await adminCreateUser(data.email, data.password, data.name);
+      
+      const newEmployee: any = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || '',
+        department: data.department || '',
+        designation: data.designation || '',
+        employeeID: generateEmployeeID(),
+        photoURL: '',
+        role: 'employee',
+        faceRegistered: false,
+        status: 'active',
+      };
+      
+      await createUserDoc(credential.user.uid, newEmployee);
+      setEmployees(prev => [newEmployee, ...prev]);
+      toast.success('Employee created successfully');
+      return true;
+    } catch (err: any) {
+      console.error('Error creating employee:', err);
+      toast.error(err.message || 'Failed to create employee');
+      return false;
+    }
+  };
+
   return {
     employees: filteredEmployees,
     allEmployees: employees,
@@ -109,5 +141,6 @@ export function useAdmin() {
     toggleEmployeeStatus,
     fetchAdminStats,
     fetchAttendanceReport,
+    addEmployee,
   };
 }

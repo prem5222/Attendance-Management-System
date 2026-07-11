@@ -51,7 +51,7 @@ export default function SignupPage() {
     setIsSubmitting(true);
     try {
       await signup(data.email, data.password, data.name);
-      router.push('/login');
+      router.push('/dashboard/face-registration');
     } catch (error) {
       // Error handled in hook
     } finally {

@@ -11,7 +11,7 @@ export async function storeFaceDescriptors(
   const docRef = doc(db, COLLECTION, uid);
   await setDoc(docRef, {
     uid,
-    descriptors,
+    descriptors: JSON.stringify(descriptors),
     updatedAt: Timestamp.now(),
   });
 }
@@ -22,7 +22,10 @@ export async function getFaceDescriptors(
   const docRef = doc(db, COLLECTION, uid);
   const snapshot = await getDoc(docRef);
   if (!snapshot.exists()) return null;
-  return snapshot.data().descriptors as number[][];
+  const data = snapshot.data();
+  return typeof data.descriptors === 'string' 
+    ? JSON.parse(data.descriptors) 
+    : data.descriptors;
 }
 
 export async function deleteFaceDescriptors(uid: string): Promise<void> {

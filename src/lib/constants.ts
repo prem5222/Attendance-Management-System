@@ -63,10 +63,10 @@ export const NAV_LINKS = [
 
 export const DASHBOARD_NAV = [
   { label: 'Dashboard', href: '/dashboard', icon: 'LayoutDashboard' },
-  { label: 'Mark Attendance', href: '/dashboard/attendance', icon: 'Clock' },
+  { label: 'Today\'s Attendance', href: '/dashboard/attendance', icon: 'Clock' },
   { label: 'History', href: '/dashboard/history', icon: 'History' },
   { label: 'Profile', href: '/dashboard/profile', icon: 'User' },
-  { label: 'Face Registration', href: '/dashboard/face-registration', icon: 'ScanFace' },
+  { label: 'Settings', href: '/dashboard/settings', icon: 'Settings' },
 ];
 
 export const ADMIN_NAV = [
@@ -77,7 +77,7 @@ export const ADMIN_NAV = [
   { label: 'Settings', href: '/admin/settings', icon: 'Settings' },
 ];
 
-export const FACE_MATCH_THRESHOLD = 0.6;
+export const FACE_MATCH_THRESHOLD = 0.4;
 
 export const MODELS_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
 

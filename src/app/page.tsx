@@ -6,6 +6,8 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { 
   ScanFace, LayoutDashboard, BarChart3, Users, 
   Shield, Smartphone, ArrowRight, CheckCircle2 
@@ -22,6 +24,21 @@ const features = [
 
 export default function LandingPage() {
   const router = useRouter();
+  const { firebaseUser, userData, loading } = useAuthContext();
+
+  useEffect(() => {
+    if (!loading && firebaseUser) {
+      if (userData?.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [firebaseUser, userData, loading, router]);
+
+  if (loading || firebaseUser) {
+    return <div className="min-h-screen bg-[#0a0a0a]" />;
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col overflow-hidden">
