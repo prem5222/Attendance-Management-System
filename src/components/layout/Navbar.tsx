@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Shield, Menu, X, LogOut, User as UserIcon } from 'lucide-react';
+import { Shield, Menu, X, LogOut, User as UserIcon, Home as HomeIcon, Info, Star } from 'lucide-react';
 import { useState } from 'react';
+import { ExpandableTabs } from '../ui/expandable-tabs';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NAV_LINKS } from '@/lib/constants';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -39,17 +40,24 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             <div className="flex items-center gap-6">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`text-sm font-medium transition-colors ${
-                    pathname === link.href ? 'text-blue-400' : 'text-gray-300 hover:text-white'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <ExpandableTabs 
+                tabs={[
+                  { title: 'Home', icon: HomeIcon, href: '/' },
+                  { title: 'About', icon: Info, href: '/about' },
+                  { title: 'Features', icon: Star, href: '/#features' },
+                ]} 
+                defaultSelected={pathname === '/' ? 0 : pathname === '/about' ? 1 : pathname === '/#features' ? 2 : null}
+                onChange={(index) => {
+                  const tabs = [
+                    { title: 'Home', icon: HomeIcon, href: '/' },
+                    { title: 'About', icon: Info, href: '/about' },
+                    { title: 'Features', icon: Star, href: '/#features' },
+                  ];
+                  if (index !== null && tabs[index]) {
+                    router.push(tabs[index].href);
+                  }
+                }}
+              />
             </div>
 
             <div className="flex items-center gap-4 border-l border-white/10 pl-8">

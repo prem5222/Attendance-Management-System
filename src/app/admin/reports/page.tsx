@@ -4,11 +4,24 @@ import { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
-import { Download, Calendar, BarChart3, Users, Clock } from 'lucide-react';
+import { Download, Calendar, BarChart3, Users, Clock, PieChart as PieChartIcon } from 'lucide-react';
 import { getAllAttendanceRange } from '@/lib/services/attendance.service';
 import { getActiveEmployees } from '@/lib/services/user.service';
 import { AttendanceRecord, User } from '@/types';
 import toast from 'react-hot-toast';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts';
 
 function getDateString(d: Date): string {
   return d.toISOString().split('T')[0];
