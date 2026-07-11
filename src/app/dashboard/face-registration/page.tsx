@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useFaceRecognition, HeadPose, getHeadPose, evaluateFaceQuality } from '@/hooks/useFaceRecognition';
+import { useFaceRecognition, evaluateFaceQuality } from '@/hooks/useFaceRecognition';
 import { updateUserDoc } from '@/lib/services/user.service';
 import { storeFaceDescriptors } from '@/lib/services/face.service';
 import Card from '@/components/ui/Card';
@@ -12,13 +12,7 @@ import Spinner from '@/components/ui/Spinner';
 import { Camera, ScanFace, CheckCircle2, Shield, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const POSES: { id: HeadPose; label: string; instruction: string }[] = [
-  { id: 'FRONT', label: 'Front', instruction: 'Look directly at the camera' },
-  { id: 'LEFT', label: 'Left', instruction: 'Turn your head slightly to the left' },
-  { id: 'RIGHT', label: 'Right', instruction: 'Turn your head slightly to the right' },
-  { id: 'UP', label: 'Up', instruction: 'Tilt your head slightly up' },
-  { id: 'DOWN', label: 'Down', instruction: 'Tilt your head slightly down' },
-];
+const TOTAL_CAPTURES = 5;
 
 export default function FaceRegistrationPage() {
   const router = useRouter();
@@ -29,7 +23,6 @@ export default function FaceRegistrationPage() {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   
-  const [currentPoseIndex, setCurrentPoseIndex] = useState(0);
   const [capturedDescriptors, setCapturedDescriptors] = useState<number[][]>([]);
   const [qualityError, setQualityError] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -97,7 +90,6 @@ export default function FaceRegistrationPage() {
     } catch (error: any) {
       toast.error(error.message || 'Face registration failed.');
       setIsCapturing(false);
-      setCurrentPoseIndex(0);
       setCapturedDescriptors([]);
       analysisRef.current = { isRunning: false, capturedCount: 0, descriptors: [] };
     } finally {
@@ -117,27 +109,19 @@ export default function FaceRegistrationPage() {
       if (!quality.valid || !detection) {
         setQualityError(quality.reason || 'Invalid face');
       } else {
-        const currentPose = getHeadPose(detection.landmarks);
-        const targetPose = POSES[analysisRef.current.capturedCount].id;
-
-        if (currentPose === targetPose) {
-          setQualityError('Great! Hold still...');
-          
-          analysisRef.current.descriptors.push(Array.from(detection.descriptor));
-          analysisRef.current.capturedCount++;
-          
-          setCapturedDescriptors([...analysisRef.current.descriptors]);
-          
-          if (analysisRef.current.capturedCount >= POSES.length) {
-            analysisRef.current.isRunning = false;
-            finishRegistration(analysisRef.current.descriptors);
-            return;
-          } else {
-            setCurrentPoseIndex(analysisRef.current.capturedCount);
-            await new Promise(r => setTimeout(r, 1200));
-          }
+        setQualityError('Great! Hold still...');
+        
+        analysisRef.current.descriptors.push(Array.from(detection.descriptor));
+        analysisRef.current.capturedCount++;
+        
+        setCapturedDescriptors([...analysisRef.current.descriptors]);
+        
+        if (analysisRef.current.capturedCount >= TOTAL_CAPTURES) {
+          analysisRef.current.isRunning = false;
+          finishRegistration(analysisRef.current.descriptors);
+          return;
         } else {
-          setQualityError(`Please ${POSES[analysisRef.current.capturedCount].instruction.toLowerCase()}`);
+          await new Promise(r => setTimeout(r, 600)); // 600ms burst gap
         }
       }
     } catch (err) {
@@ -152,7 +136,6 @@ export default function FaceRegistrationPage() {
   const startAutoCapture = () => {
     if (isCapturing) return;
     setIsCapturing(true);
-    setCurrentPoseIndex(0);
     setCapturedDescriptors([]);
     setQualityError(null);
     
@@ -181,7 +164,7 @@ export default function FaceRegistrationPage() {
     );
   }
 
-  const progress = (capturedDescriptors.length / POSES.length) * 100;
+  const progress = (capturedDescriptors.length / TOTAL_CAPTURES) * 100;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -191,7 +174,7 @@ export default function FaceRegistrationPage() {
         </div>
         <h1 className="text-2xl font-bold text-white">Register Your Face</h1>
         <p className="text-gray-400 max-w-lg mx-auto">
-          Please complete our secure multi-angle registration. This ensures strict identity matching for attendance.
+          Please look at the camera and slightly move your head. We will quickly capture a few angles to ensure strict identity matching.
         </p>
       </div>
 
@@ -200,13 +183,13 @@ export default function FaceRegistrationPage() {
           <h2 className="text-lg font-semibold text-white">Capture Progress</h2>
           
           <div className="space-y-3">
-            {POSES.map((pose, index) => {
+            {Array.from({ length: TOTAL_CAPTURES }).map((_, index) => {
               const isCompleted = index < capturedDescriptors.length;
-              const isCurrent = index === currentPoseIndex && isCapturing;
+              const isCurrent = index === capturedDescriptors.length && isCapturing;
               
               return (
                 <div 
-                  key={pose.id} 
+                  key={index} 
                   className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
                     isCompleted ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                     isCurrent ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
@@ -220,7 +203,7 @@ export default function FaceRegistrationPage() {
                   }`}>
                     {isCompleted ? '✓' : index + 1}
                   </div>
-                  <span className="font-medium">{pose.label}</span>
+                  <span className="font-medium">Scan {index + 1}</span>
                 </div>
               );
             })}
@@ -269,7 +252,7 @@ export default function FaceRegistrationPage() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[70%] border-2 border-dashed border-white/40 rounded-[40%] transition-colors duration-300">
                   {isCapturing && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-12 bg-black/60 backdrop-blur text-white px-4 py-2 rounded-full whitespace-nowrap text-sm font-semibold border border-white/10">
-                      {POSES[currentPoseIndex]?.instruction}
+                      Slowly move your head around
                     </div>
                   )}
                   {qualityError && isCapturing && (
@@ -305,11 +288,11 @@ export default function FaceRegistrationPage() {
                 </Button>
                 {!isCapturing ? (
                   <Button onClick={startAutoCapture} className="flex-1 text-base">
-                    Start Multi-Angle Capture
+                    Start Fast Registration
                   </Button>
                 ) : (
                   <Button disabled className="flex-1 text-base bg-blue-500/20 text-blue-400">
-                    Capturing... ({capturedDescriptors.length}/{POSES.length})
+                    Capturing... ({capturedDescriptors.length}/{TOTAL_CAPTURES})
                   </Button>
                 )}
               </div>
