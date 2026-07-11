@@ -74,6 +74,7 @@ export function useAuth() {
         faceRegistered: false,
         status: 'active',
       });
+      await refreshUser();
       await logAuthEvent(email, 'signup', 'success');
       toast.success('Your account has been created successfully!');
       return credential;

@@ -23,7 +23,20 @@ export default function DashboardPage() {
     }
   }, [userData, fetchTodayAttendance, fetchStats]);
 
-  if (!userData) return null;
+  if (!userData) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-24 bg-white/5 rounded-2xl border border-white/10" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Skeleton variant="card" count={5} />
+        </div>
+        <div className="grid lg:grid-cols-2 gap-6">
+          <Skeleton variant="card" className="h-64" />
+          <Skeleton variant="card" className="h-64" />
+        </div>
+      </div>
+    );
+  }
 
   const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
