@@ -41,7 +41,7 @@ export function useAuth() {
       
       await refreshUser();
       await logAuthEvent(email, 'login', 'success');
-      toast.success('Welcome back!');
+      toast.success('Welcome back to your dashboard!');
       return {
         credential,
         role: isAdmin ? 'admin' : (existingDoc?.role || 'employee')
@@ -75,7 +75,7 @@ export function useAuth() {
         status: 'active',
       });
       await logAuthEvent(email, 'signup', 'success');
-      toast.success('Account created successfully!');
+      toast.success('Your account has been created successfully!');
       return credential;
     } catch (err: unknown) {
       await logAuthEvent(email, 'signup', 'failed', { error: err instanceof Error ? err.message : String(err) });
@@ -91,7 +91,7 @@ export function useAuth() {
   const logout = async () => {
     try {
       await logOut();
-      toast.success('Logged out successfully');
+      toast.success('You have been logged out successfully.');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Logout failed';
       toast.error(message);
@@ -102,7 +102,7 @@ export function useAuth() {
     setAuthLoading(true);
     try {
       await resetPw(email);
-      toast.success('Password reset email sent!');
+      toast.success('A password reset email has been sent to your address.');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Reset failed';
       toast.error(getFriendlyError(message));

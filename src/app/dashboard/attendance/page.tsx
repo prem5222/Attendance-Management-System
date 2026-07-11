@@ -47,7 +47,7 @@ export default function TodayAttendancePage() {
     setCurrentAction(action);
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        toast.error('Camera API is not supported. Use HTTPS or localhost.');
+        toast.error('Camera access is not supported in this environment. Please ensure you are using HTTPS or localhost.');
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
@@ -62,7 +62,7 @@ export default function TodayAttendancePage() {
       }
     } catch (error: any) {
       console.error('Camera error:', error);
-      toast.error(`Camera error: ${error.name || error.message || 'Check permissions'}`);
+      toast.error(`Camera access error: ${error.name || error.message || 'Please check your browser permissions.'}`);
     }
   };
 
@@ -83,13 +83,13 @@ export default function TodayAttendancePage() {
     try {
       const storedDescriptors = await getFaceDescriptors(userData.uid);
       if (!storedDescriptors) {
-        toast.error('No face data found. Please register your face first.');
+        toast.error('No facial data found. Please register your face before checking in.');
         return;
       }
 
       const matchResult = await verifyFace(videoRef.current, storedDescriptors);
       if (!matchResult?.matched) {
-        toast.error('Face not recognized. Please try again.');
+        toast.error('Facial recognition failed. Please position your face clearly and try again.');
         return;
       }
 
@@ -106,7 +106,7 @@ export default function TodayAttendancePage() {
         await fetchTodayAttendance(userData.uid);
       }
     } catch (error: any) {
-      toast.error(error.message || 'Verification failed. Please try again.');
+      toast.error(error.message || 'Identity verification failed. Please try again.');
     } finally {
       setIsVerifying(false);
     }

@@ -41,11 +41,11 @@ export default function FaceRegistrationPage() {
     toast.loading('Requesting camera access...', { id: 'camera-toast' });
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        toast.error('Camera API is not supported. Use HTTPS or localhost.', { id: 'camera-toast' });
+        toast.error('Camera access is not supported in this environment. Please ensure you are using HTTPS or localhost.', { id: 'camera-toast' });
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-      toast.success('Camera connected!', { id: 'camera-toast' });
+      toast.success('Camera successfully connected.', { id: 'camera-toast' });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         try {
@@ -57,7 +57,7 @@ export default function FaceRegistrationPage() {
       }
     } catch (error: any) {
       console.error('Camera error:', error);
-      toast.error(`Camera error: ${error.name || error.message || 'Check permissions'}`, { id: 'camera-toast' });
+      toast.error(`Camera access error: ${error.name || error.message || 'Please check your browser permissions.'}`, { id: 'camera-toast' });
     }
   };
 
@@ -80,7 +80,7 @@ export default function FaceRegistrationPage() {
       await storeFaceDescriptors(userData.uid, finalDescriptors);
       await updateUserDoc(userData.uid, { faceRegistered: true });
       
-      toast.success('Face registered successfully!');
+      toast.success('Your facial features have been registered successfully!');
       setRegistrationComplete(true);
       stopCamera();
       
@@ -88,7 +88,7 @@ export default function FaceRegistrationPage() {
         router.push('/dashboard');
       }, 2000);
     } catch (error: any) {
-      toast.error(error.message || 'Face registration failed.');
+      toast.error(error.message || 'Facial registration failed. Please try again.');
       setIsCapturing(false);
       setCapturedDescriptors([]);
       analysisRef.current = { isRunning: false, capturedCount: 0, descriptors: [] };

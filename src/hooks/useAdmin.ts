@@ -19,7 +19,7 @@ export function useAdmin() {
       setEmployees(users.filter((u) => u.role === 'employee'));
     } catch (err) {
       console.error('Error fetching employees:', err);
-      toast.error('Failed to fetch employees');
+      toast.error('Failed to retrieve employee data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -44,10 +44,10 @@ export function useAdmin() {
     try {
       await deleteUserDoc(uid);
       setEmployees((prev) => prev.filter((e) => e.uid !== uid));
-      toast.success('Employee deleted');
+      toast.success('The employee profile has been successfully removed.');
     } catch (err) {
       console.error('Error deleting employee:', err);
-      toast.error('Failed to delete employee');
+      toast.error('Failed to remove the employee profile. Please try again.');
     }
   };
 
@@ -65,12 +65,11 @@ export function useAdmin() {
             : e
         )
       );
-      toast.success(
-        `Employee ${currentStatus === 'active' ? 'disabled' : 'enabled'}`
-      );
+      toast.success(`The employee's status has been updated to ${currentStatus === 'active' ? 'disabled' : 'active'}.`);
+
     } catch (err) {
       console.error('Error toggling status:', err);
-      toast.error('Failed to update employee status');
+      toast.error('Failed to update the employee status. Please try again.');
     }
   };
 
@@ -120,11 +119,11 @@ export function useAdmin() {
       
       await createUserDoc(credential.user.uid, newEmployee);
       setEmployees(prev => [newEmployee, ...prev]);
-      toast.success('Employee created successfully');
+      toast.success('The new employee profile has been created successfully!');
       return true;
     } catch (err: any) {
       console.error('Error creating employee:', err);
-      toast.error(err.message || 'Failed to create employee');
+      toast.error(err.message || 'Failed to create the employee profile. Please try again.');
       return false;
     }
   };

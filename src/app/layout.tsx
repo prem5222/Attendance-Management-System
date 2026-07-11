@@ -26,9 +26,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             position="top-right"
             toastOptions={{
               duration: 4000,
-              style: { background: '#1a1a1a', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' },
-              success: { iconTheme: { primary: '#3b82f6', secondary: '#fff' } },
-              error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+              style: { 
+                background: 'rgba(20, 20, 20, 0.8)', 
+                backdropFilter: 'blur(12px)', 
+                color: '#fff', 
+                border: '1px solid rgba(255,255,255,0.15)', 
+                borderRadius: '16px',
+                padding: '16px 20px',
+                fontSize: '14px',
+                fontWeight: '500',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+              },
+              success: { iconTheme: { primary: '#10b981', secondary: '#18181b' } },
+              error: { iconTheme: { primary: '#ef4444', secondary: '#18181b' } },
             }}
           />
         </AuthProvider>

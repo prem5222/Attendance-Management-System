@@ -41,7 +41,7 @@ export function useAttendance() {
     setLoading(true);
     try {
       const recordId = await checkInService(uid, employeeID, employeeName, faceVerified, location);
-      toast.success('Check-in successful! ✅');
+      toast.success('Your office check-in was successful. ✅');
       await fetchTodayAttendance(uid);
       return recordId;
     } catch (err: unknown) {
@@ -57,7 +57,7 @@ export function useAttendance() {
     setLoading(true);
     try {
       await checkOutService(attendanceId, checkInTime);
-      toast.success('Check-out successful! 👋');
+      toast.success('Your office check-out was successful. 👋');
       return true;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Check-out failed';

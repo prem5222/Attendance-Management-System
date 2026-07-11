@@ -28,7 +28,7 @@ export default function SettingsPage() {
   const handleVerifyAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!authEmail || !authPassword) {
-      toast.error('Please enter email and password');
+      toast.error('Please provide your email address and password.');
       return;
     }
     
@@ -38,14 +38,14 @@ export default function SettingsPage() {
       const credential = EmailAuthProvider.credential(authEmail, authPassword);
       await reauthenticateWithCredential(auth.currentUser, credential);
       setIsAuthVerified(true);
-      toast.success('Identity verified');
+      toast.success('Your identity has been successfully verified.');
       setAuthPassword(''); // Clear for security
     } catch (error: any) {
       if (error instanceof FirebaseError) {
-        if (error.code === 'auth/invalid-credential') toast.error('Invalid credentials');
-        else toast.error('Authentication failed');
+        if (error.code === 'auth/invalid-credential') toast.error('The credentials provided are invalid.');
+        else toast.error('Authentication failed. Please try again.');
       } else {
-        toast.error('Authentication failed');
+        toast.error('Authentication failed. Please try again.');
       }
     } finally {
       setIsReauthing(false);
@@ -65,10 +65,10 @@ export default function SettingsPage() {
       // 2. Update user status
       await updateUserDoc(userData.uid, { faceRegistered: false });
       
-      toast.success('Face data deleted. Please register again.');
+      toast.success('Your facial data has been deleted. Please register your face again.');
       router.push('/dashboard/face-registration');
     } catch (error) {
-      toast.error('Failed to reset face data');
+      toast.error('Failed to reset your facial data. Please try again later.');
     } finally {
       setIsResettingFace(false);
     }

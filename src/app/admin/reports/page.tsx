@@ -40,7 +40,7 @@ export default function AdminReportsPage() {
 
   const generateReport = async () => {
     if (startDate > endDate) {
-      toast.error('Start date must be before end date');
+      toast.error('The start date must be before the end date.');
       return;
     }
 
@@ -96,7 +96,7 @@ export default function AdminReportsPage() {
       
       setReportData(aggregated);
     } catch (error) {
-      toast.error('Failed to generate report');
+      toast.error('Failed to generate the report. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ export default function AdminReportsPage() {
 
   const exportCSV = () => {
     if (reportData.length === 0) {
-      toast.error('No data to export');
+      toast.error('There is no data available to export.');
       return;
     }
 
@@ -128,7 +128,7 @@ export default function AdminReportsPage() {
     a.download = `attendance-report-${startDate}-to-${endDate}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Report exported successfully!');
+    toast.success('The report has been successfully exported!');
   };
 
   return (
