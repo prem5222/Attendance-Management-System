@@ -77,7 +77,7 @@ export const ADMIN_NAV = [
   { label: 'Settings', href: '/admin/settings', icon: 'Settings' },
 ];
 
-export const FACE_MATCH_THRESHOLD = 0.4;
+export const FACE_MATCH_THRESHOLD = 0.45;
 
 export const MODELS_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
 

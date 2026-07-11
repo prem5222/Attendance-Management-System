@@ -48,8 +48,12 @@ export function evaluateFaceQuality(
   const videoWidth = videoElement.videoWidth;
   const videoHeight = videoElement.videoHeight;
 
-  if (box.width < videoWidth * 0.15) {
+  if (box.width < videoWidth * 0.20) {
     return { valid: false, reason: 'Face is too far. Please move closer.' };
+  }
+
+  if (box.width > videoWidth * 0.85) {
+    return { valid: false, reason: 'Face is too close. Please move back.' };
   }
 
   const centerX = box.x + box.width / 2;
@@ -66,8 +70,8 @@ export function evaluateFaceQuality(
      return { valid: false, reason: 'Face is partially obscured. Please remove masks/sunglasses.' };
   }
   
-  if (detection.detection.score < 0.7) {
-    return { valid: false, reason: 'Face image quality is too low or blurry.' };
+  if (detection.detection.score < 0.8) {
+    return { valid: false, reason: 'Face image quality is too low or blurry. Improve lighting.' };
   }
 
   return { valid: true };

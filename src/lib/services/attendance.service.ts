@@ -330,6 +330,13 @@ export async function getAttendanceStats(
     .sort((a, b) => b.checkIn.getTime() - a.checkIn.getTime())
     .slice(0, 5);
 
+  // Fetch specific 7-day range to avoid cross-month bugs
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const startDateStr = getDateString(sevenDaysAgo);
+  const endDateStr = getDateString(now);
+  const weeklyRecords = await getAttendanceHistory(uid, startDateStr, endDateStr);
+
   // Calculate weekly hours chart
   const weeklyHoursChart: { date: string; hours: number }[] = [];
   for (let i = 6; i >= 0; i--) {
@@ -339,7 +346,7 @@ export async function getAttendanceStats(
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
     
     const dateStr = getDateString(d);
-    const dayRecord = records.find(r => r.date === dateStr);
+    const dayRecord = weeklyRecords.find(r => r.date === dateStr);
     weeklyHoursChart.push({
       date: dateStr,
       hours: dayRecord?.workingHours || 0
@@ -435,7 +442,13 @@ export async function getAdminStats(): Promise<AdminStats> {
     absent: counts.absent,
   }));
 
-  // Weekly data (last 7 days)
+  // Weekly data (last 7 days) - fetching exact range to avoid cross-month missing data
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const weeklyStartDate = getDateString(sevenDaysAgo);
+  const weeklyEndDate = getDateString(now);
+  const weeklyRecords = await getAllAttendanceRange(weeklyStartDate, weeklyEndDate);
+
   const weeklyData: { date: string; present: number; absent: number }[] = [];
   for (let i = 6; i >= 0; i--) {
     const date = new Date();
@@ -446,7 +459,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     // Skip weekends
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
-    const dayRecords = monthlyRecords.filter((r) => r.date === dateStr);
+    const dayRecords = weeklyRecords.filter((r) => r.date === dateStr);
     weeklyData.push({
       date: dateStr,
       present: dayRecords.length,
