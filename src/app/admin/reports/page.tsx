@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import Skeleton from '@/components/ui/Skeleton';
 import { Download, Calendar, BarChart3, Users, Clock, PieChart as PieChartIcon } from 'lucide-react';
 import { getAllAttendanceRange } from '@/lib/services/attendance.service';
 import { getActiveEmployees } from '@/lib/services/user.service';
@@ -231,7 +232,7 @@ export default function AdminReportsPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading ? (
-                <tr><td colSpan={6} className="p-12 text-center"><Spinner size="lg" /></td></tr>
+                <tr><td colSpan={6} className="p-6"><Skeleton variant="table-row" count={5} /></td></tr>
               ) : reportData.length > 0 ? (
                 reportData.map((row, i) => (
                   <tr key={row.employeeID + i} className="hover:bg-white/[0.02] transition-colors">

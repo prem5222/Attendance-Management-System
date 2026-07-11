@@ -13,7 +13,7 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (!loading) {
       if (!firebaseUser) {
-        router.push('/admin/login');
+        router.push('/login');
       } else if (userData && userData.role !== 'admin') {
         router.push('/unauthorized');
       }

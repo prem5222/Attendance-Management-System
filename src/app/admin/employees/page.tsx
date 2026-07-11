@@ -116,11 +116,12 @@ export default function AdminEmployeesPage() {
                           onClick={() => toggleEmployeeStatus(emp.uid, emp.status === 'active' ? 'disabled' : 'active')}
                           className={emp.status === 'active' ? 'text-orange-400 hover:text-orange-300' : 'text-emerald-400 hover:text-emerald-300'}
                           title={emp.status === 'active' ? 'Disable Account' : 'Enable Account'}
+                          aria-label={emp.status === 'active' ? 'Disable Account' : 'Enable Account'}
                         >
                           {emp.status === 'active' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                         </Button>
                         <Link href={`/admin/employees/${emp.uid}`}>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" aria-label="View Employee Details">
                             <MoreVertical className="w-4 h-4 text-gray-400" />
                           </Button>
                         </Link>

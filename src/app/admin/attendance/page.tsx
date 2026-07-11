@@ -5,6 +5,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Spinner from '@/components/ui/Spinner';
+import Skeleton from '@/components/ui/Skeleton';
 import { Search, Download, Calendar, Filter, Users } from 'lucide-react';
 import { getAllAttendanceByDate } from '@/lib/services/attendance.service';
 import { getActiveEmployees } from '@/lib/services/user.service';
@@ -177,7 +178,7 @@ export default function AdminAttendancePage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading ? (
-                <tr><td colSpan={7} className="p-8 text-center"><Spinner /></td></tr>
+                <tr><td colSpan={7} className="p-6"><Skeleton variant="table-row" count={5} /></td></tr>
               ) : filtered.length > 0 ? (
                 filtered.map((row, i) => (
                   <tr key={row.uid + i} className="hover:bg-white/[0.02] transition-colors">

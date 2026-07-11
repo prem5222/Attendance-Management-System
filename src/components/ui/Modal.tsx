@@ -37,7 +37,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className={`relative w-full ${maxWidth} bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl`}
+            className={`relative w-full ${maxWidth} bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl`}
           >
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h2 className="text-lg font-semibold text-white">{title}</h2>
