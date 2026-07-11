@@ -37,11 +37,11 @@ export default function LandingPage() {
   }, [firebaseUser, userData, loading, router]);
 
   if (loading || firebaseUser) {
-    return <div className="min-h-screen bg-[#0a0a0a]" />;
+    return <div className="min-h-screen bg-transparent" />;
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-transparent flex flex-col overflow-hidden">
       <Navbar />
       
       <main className="flex-1">
@@ -110,7 +110,7 @@ export default function LandingPage() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <Card hover className="h-full bg-[#111] border-white/5">
+                  <Card hover className="h-full bg-black/40 backdrop-blur-md border-white/5">
                     <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6">
                       <feature.icon className="w-6 h-6 text-blue-400" />
                     </div>
@@ -150,7 +150,7 @@ export default function LandingPage() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.2 }}
-                  className="bg-[#111] border border-white/5 p-8 rounded-2xl relative"
+                  className="bg-black/40 backdrop-blur-md border border-white/5 p-8 rounded-2xl relative"
                 >
                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#1a1a1a] border-2 border-blue-500/30 rounded-full flex items-center justify-center text-blue-400 font-bold">
                     {item.step}
@@ -167,7 +167,7 @@ export default function LandingPage() {
 
         {/* CTA Section */}
         <section className="py-24 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-[#0a0a0a]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent" />
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 30 }}

@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex">
+    <div className="min-h-screen bg-black/70 backdrop-blur-sm flex">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block fixed inset-y-0 z-40">
         <Sidebar items={DASHBOARD_NAV} />

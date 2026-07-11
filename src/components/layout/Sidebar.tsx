@@ -40,7 +40,7 @@ export default function Sidebar({ items, collapsed = false, onClose, mobile = fa
 
   return (
     <div className={cn(
-      "flex flex-col h-full bg-[#111] border-r border-white/10 transition-all duration-300",
+      "flex flex-col h-full bg-black/40 backdrop-blur-md border-r border-white/10 transition-all duration-300",
       collapsed ? "w-20" : "w-64"
     )}>
       {/* Header */}
