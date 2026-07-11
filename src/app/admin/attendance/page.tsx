@@ -107,7 +107,7 @@ export default function AdminAttendancePage() {
             type="date" 
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-blue-500"
+            className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-blue-500"
           />
           <Button icon={<Download className="w-4 h-4" />} variant="secondary" onClick={exportCSV}>
             Export CSV

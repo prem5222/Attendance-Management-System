@@ -55,20 +55,20 @@ export default function HistoryPage() {
         <h1 className="text-2xl font-bold text-white">Attendance History</h1>
         
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-1">
-            <Calendar className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center justify-between sm:justify-start gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-1">
+            <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
             <input 
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="bg-transparent text-sm text-white outline-none w-32"
+              className="bg-transparent text-sm text-white outline-none w-full max-w-[120px] sm:w-32"
             />
-            <span className="text-gray-500">-</span>
+            <span className="text-gray-500 shrink-0">-</span>
             <input 
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="bg-transparent text-sm text-white outline-none w-32"
+              className="bg-transparent text-sm text-white outline-none w-full max-w-[120px] sm:w-32"
             />
           </div>
           
