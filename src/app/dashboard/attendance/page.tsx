@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useAttendance } from '@/hooks/useAttendance';
 import { useFaceRecognition, evaluateFaceQuality } from '@/hooks/useFaceRecognition';
@@ -17,6 +18,7 @@ const REQUIRED_CONSECUTIVE_MATCHES = 3;
 const SCAN_TIMEOUT_MS = 15000;
 
 export default function TodayAttendancePage() {
+  const router = useRouter();
   const { userData } = useAuthContext();
   const { todayAttendance, canCheckIn, canCheckOut, isComplete, handleCheckIn, handleCheckOut, fetchTodayAttendance, loading: attLoading } = useAttendance();
   const { modelsLoaded, loadModels, detectFaceDetailed } = useFaceRecognition();
@@ -85,6 +87,7 @@ export default function TodayAttendancePage() {
         if (userData?.uid) {
           fetchTodayAttendance(userData.uid);
         }
+        router.push('/dashboard');
       }, 1500);
     } catch (error: any) {
       toast.error(error.message || 'Failed to record attendance.');
@@ -92,7 +95,7 @@ export default function TodayAttendancePage() {
     } finally {
       setIsRecording(false);
     }
-  }, [userData, currentAction, todayAttendance, handleCheckIn, handleCheckOut, stopCamera, fetchTodayAttendance, location]);
+  }, [userData, currentAction, todayAttendance, handleCheckIn, handleCheckOut, stopCamera, fetchTodayAttendance, location, router]);
 
   const runAutoVerifyLoop = useCallback(async () => {
     if (!videoRef.current || !scanRef.current.isRunning || !scanRef.current.storedDescriptors) return;

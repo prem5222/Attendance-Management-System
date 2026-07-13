@@ -233,8 +233,8 @@ export default function FaceRegistrationPage() {
             </div>
           )}
           
-          <Button onClick={() => router.push('/dashboard')} size="lg">
-            Go to Dashboard
+          <Button onClick={() => router.push('/dashboard/attendance')} size="lg">
+            Continue to Attendance
           </Button>
         </Card>
       </div>
